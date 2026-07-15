@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dokumentasi API · SI Perpustakaan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F7F3;
+    --bg-raised:#FFFFFF;
+    --bg-sunken:#EFF1EB;
+    --ink:#16231C;
+    --ink-soft:#54635A;
+    --ink-faint:#8A968D;
+    --rule:#DCE2D9;
+    --rule-strong:#C2CBBE;
+    --get:#2B5F8A;     --get-bg:#E8F0F6;
+    --post:#1F7A53;    --post-bg:#E6F2EC;
+    --put:#B8762A;     --put-bg:#F7EEE0;
+    --patch:#9A5BBA;   --patch-bg:#F3E9F8;
+    --delete:#B23A3A;  --delete-bg:#F7E7E7;
+    --mono-bg:#14211B;
+    --mono-ink:#DCE9E0;
+    --font-display:'Fraunces',serif;
+    --font-body:'Inter',-apple-system,sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --sidebar-w:272px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:15.5px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  ::selection{background:var(--post-bg);}
+
+  /* ---------- layout shell ---------- */
+  .shell{display:flex; min-height:100vh;}
+
+  .topbar{
+    display:none;
+    position:sticky; top:0; z-index:30;
+    background:var(--bg-raised);
+    border-bottom:1px solid var(--rule);
+    padding:14px 18px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .topbar .brand{font-family:var(--font-display); font-weight:600; font-size:1.05rem;}
+  .menu-btn{
+    border:1px solid var(--rule-strong); background:var(--bg-raised);
+    border-radius:7px; padding:8px 10px; cursor:pointer;
+  }
+  .menu-btn span, .menu-btn span::before, .menu-btn span::after{
+    display:block; width:18px; height:2px; background:var(--ink); position:relative; border-radius:2px;
+  }
+  .menu-btn span::before{content:""; top:-5px;}
+  .menu-btn span::after{content:""; top:3px;}
+
+  nav.sidebar{
+    width:var(--sidebar-w); flex:0 0 var(--sidebar-w);
+    position:sticky; top:0; align-self:flex-start;
+    height:100vh; overflow-y:auto;
+    border-right:1px solid var(--rule);
+    background:var(--bg-raised);
+    padding:28px 22px 40px;
+  }
+  .brand-block{margin-bottom:26px;}
+  .brand-eyebrow{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--post); font-weight:600;
+  }
+  .brand-title{
+    font-family:var(--font-display); font-size:1.32rem; font-weight:600; line-height:1.25; margin:6px 0 4px;
+  }
+  .brand-sub{font-size:12.5px; color:var(--ink-soft);}
+
+  .nav-group{margin-top:22px;}
+  .nav-group-label{
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ink-faint); margin-bottom:8px; display:block;
+  }
+  .nav-group a{
+    display:flex; align-items:center; gap:8px;
+    padding:7px 9px; border-radius:7px;
+    font-size:13.7px; color:var(--ink-soft); text-decoration:none;
+    transition:background .15s, color .15s;
+  }
+  .nav-group a:hover{background:var(--bg-sunken); color:var(--ink);}
+  .nav-group a .dot{
+    width:6px; height:6px; border-radius:50%; background:var(--rule-strong); flex:0 0 auto;
+  }
+  .nav-group a.active{color:var(--post); background:var(--post-bg); font-weight:600;}
+  .nav-group a.active .dot{background:var(--post);}
+
+  main.content{flex:1 1 auto; min-width:0;}
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding:64px 56px 44px;
+    border-bottom:1px solid var(--rule);
+    background:
+      radial-gradient(620px 220px at 88% -10%, var(--post-bg), transparent 70%),
+      var(--bg);
+  }
+  .eyebrow{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--post); font-weight:600;
+  }
+  .hero h1{
+    font-family:var(--font-display); font-weight:600; font-size:clamp(1.9rem,3.4vw,2.7rem);
+    line-height:1.12; margin:14px 0 12px; max-width:760px;
+  }
+  .hero p.lead{color:var(--ink-soft); max-width:620px; font-size:1rem; margin:0 0 26px;}
+
+  .chip-row{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:28px;}
+  .chip{
+    display:inline-flex; align-items:center; gap:7px;
+    background:var(--bg-raised); border:1px solid var(--rule-strong);
+    border-radius:8px; padding:7px 12px; font-size:12.5px;
+  }
+  .chip .k{color:var(--ink-faint); font-family:var(--font-mono); text-transform:uppercase; font-size:10.5px; letter-spacing:.06em;}
+  .chip .v{font-family:var(--font-mono); font-weight:600;}
+
+  .stat-row{display:flex; flex-wrap:wrap; gap:0; border:1px solid var(--rule); border-radius:12px; overflow:hidden; background:var(--bg-raised); max-width:760px;}
+  .stat{flex:1 1 140px; padding:16px 18px; border-right:1px solid var(--rule);}
+  .stat:last-child{border-right:none;}
+  .stat .num{font-family:var(--font-display); font-size:1.6rem; font-weight:600; color:var(--post);}
+  .stat .label{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+
+  /* ---------- sections ---------- */
+  section.mod{padding:46px 56px; border-bottom:1px solid var(--rule);}
+  section.mod:nth-of-type(odd){background:var(--bg);}
+  .mod-head{display:flex; align-items:baseline; justify-content:space-between; gap:18px; margin-bottom:18px; flex-wrap:wrap;}
+  .mod-head h2{font-family:var(--font-display); font-size:1.5rem; font-weight:600; margin:0;}
+  .mod-count{font-family:var(--font-mono); font-size:12px; color:var(--ink-faint);}
+
+  table.ep{width:100%; border-collapse:collapse; font-size:13.6px;}
+  table.ep th{
+    text-align:left; font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-faint); padding:0 12px 10px; border-bottom:1px solid var(--rule-strong); font-weight:500;
+  }
+  table.ep td{padding:12px; border-bottom:1px solid var(--rule); vertical-align:middle;}
+  table.ep tr:hover td{background:var(--bg-sunken);}
+  table.ep td.path{font-family:var(--font-mono); font-size:13px;}
+  table.ep td.desc{color:var(--ink-soft);}
+
+  .badge{
+    display:inline-flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:11px; font-weight:600; letter-spacing:.03em;
+    padding:4px 9px; border-radius:6px; min-width:58px;
+  }
+  .badge.get{color:var(--get); background:var(--get-bg);}
+  .badge.post{color:var(--post); background:var(--post-bg);}
+  .badge.put{color:var(--put); background:var(--put-bg);}
+  .badge.patch{color:var(--patch); background:var(--patch-bg);}
+  .badge.delete{color:var(--delete); background:var(--delete-bg);}
+
+  /* ---------- detail cards ---------- */
+  .detail{
+    margin-top:26px; border:1px solid var(--rule-strong); border-radius:14px; overflow:hidden;
+    background:var(--bg-raised);
+  }
+  .detail-head{
+    display:flex; align-items:center; gap:12px; padding:16px 18px;
+    border-bottom:1px solid var(--rule); background:var(--bg-sunken);
+    flex-wrap:wrap;
+  }
+  .detail-head .path{font-family:var(--font-mono); font-size:13.5px; font-weight:600;}
+  .detail-head .title{color:var(--ink-soft); font-size:13px; margin-left:auto;}
+  .detail-body{padding:18px;}
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:880px){.grid-2{grid-template-columns:1fr;}}
+
+  .code-block{border:1px solid var(--rule); border-radius:10px; overflow:hidden; background:var(--mono-bg);}
+  .code-block .code-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 12px; background:rgba(255,255,255,0.04);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .code-block .code-label{
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--mono-ink); opacity:.65;
+  }
+  .copy-btn{
+    font-family:var(--font-mono); font-size:10.5px; color:var(--mono-ink); opacity:.7;
+    background:transparent; border:1px solid rgba(255,255,255,0.18); border-radius:5px;
+    padding:3px 8px; cursor:pointer; transition:opacity .15s, background .15s;
+  }
+  .copy-btn:hover{opacity:1; background:rgba(255,255,255,0.08);}
+  pre.code-json{
+    margin:0; padding:14px; font-family:var(--font-mono); font-size:12.4px; line-height:1.65;
+    color:var(--mono-ink); overflow-x:auto; white-space:pre;
+  }
+  .tok-key{color:#8FCBFF;}
+  .tok-str{color:#B9E6C9;}
+  .tok-num{color:#F2C28B;}
+  .tok-bool{color:#F2A6A6; font-weight:600;}
+  .tok-null{color:#9AA6A0; font-style:italic;}
+
+  .flow{margin:16px 0 0; padding:0; list-style:none; counter-reset:flow;}
+  .flow li{
+    counter-increment:flow; position:relative; padding:10px 0 10px 38px; font-size:13.6px;
+    border-bottom:1px solid var(--rule); color:var(--ink-soft);
+  }
+  .flow li:last-child{border-bottom:none;}
+  .flow li::before{
+    content:counter(flow); position:absolute; left:0; top:8px;
+    width:22px; height:22px; border-radius:50%; background:var(--post-bg); color:var(--post);
+    font-family:var(--font-mono); font-size:11.5px; font-weight:700; display:flex; align-items:center; justify-content:center;
+  }
+  .flow li b{color:var(--ink); font-weight:600;}
+  .flow li .code{font-family:var(--font-mono); background:var(--bg-sunken); padding:1px 6px; border-radius:4px; font-size:12px;}
+
+  .note{
+    margin-top:16px; padding:12px 14px; border-radius:9px; border:1px solid var(--rule-strong);
+    background:var(--bg-sunken); font-size:13px; color:var(--ink-soft);
+  }
+  .note b{color:var(--ink);}
+
+  /* ---------- status & security ---------- */
+  table.status{width:100%; border-collapse:collapse; font-size:13.8px; max-width:560px;}
+  table.status td{padding:10px 12px; border-bottom:1px solid var(--rule);}
+  table.status td:first-child{font-family:var(--font-mono); font-weight:700;}
+  table.status tr.ok td:first-child{color:var(--post);}
+  table.status tr.warn td:first-child{color:var(--put);}
+  table.status tr.err td:first-child{color:var(--delete);}
+
+  .sec-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:18px;}
+  @media (max-width:880px){.sec-grid{grid-template-columns:1fr;}}
+  .sec-card{border:1px solid var(--rule-strong); border-radius:12px; padding:16px 18px; background:var(--bg-raised);}
+  .sec-card .sec-label{font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--post); margin-bottom:6px; display:block;}
+  .sec-card p{margin:0; font-size:13.6px; color:var(--ink-soft);}
+
+  footer{padding:34px 56px 60px; color:var(--ink-faint); font-size:12.5px;}
+
+  @media (max-width:1000px){
+    .hero, section.mod{padding:36px 24px;}
+    footer{padding:30px 24px 50px;}
+  }
+  @media (max-width:820px){
+    .shell{flex-direction:column;}
+    .topbar{display:flex;}
+    nav.sidebar{
+      position:fixed; left:0; top:57px; height:calc(100vh - 57px); z-index:40;
+      transform:translateX(-100%); transition:transform .2s ease; box-shadow:8px 0 24px rgba(0,0,0,0.08);
+    }
+    nav.sidebar.open{transform:translateX(0);}
+    .grid-2{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">SI Perpustakaan</div>
+  <button class="menu-btn" id="menuBtn" aria-label="Buka navigasi"><span></span></button>
+</div>
+
+<div class="shell">
+
+  <nav class="sidebar" id="sidebar">
+    <div class="brand-block">
+      <span class="brand-eyebrow">Dokumentasi API · v1.0</span>
+      <div class="brand-title">SI Perpustakaan</div>
+      <div class="brand-sub">Modern RESTful API</div>
+    </div>
+
+    <div class="nav-group">
+      <span class="nav-group-label">Mulai</span>
+      <a href="#ringkasan"><span class="dot"></span>Ringkasan &amp; Auth</a>
+    </div>
+
+    <div class="nav-group">
+      <span class="nav-group-label">Master Data</span>
+      <a href="#kategori"><span class="dot"></span>Kategori Buku</a>
+      <a href="#penerbit"><span class="dot"></span>Penerbit</a>
+      <a href="#rak"><span class="dot"></span>Rak Buku</a>
+    </div>
+
+    <div class="nav-group">
+      <span class="nav-group-label">Pengguna &amp; Katalog</span>
+      <a href="#anggota"><span class="dot"></span>Anggota</a>
+      <a href="#petugas"><span class="dot"></span>Petugas</a>
+      <a href="#buku"><span class="dot"></span>Buku</a>
+    </div>
+
+    <div class="nav-group">
+      <span class="nav-group-label">Sirkulasi &amp; Denda</span>
+      <a href="#reservasi"><span class="dot"></span>Reservasi</a>
+      <a href="#peminjaman"><span class="dot"></span>Peminjaman</a>
+      <a href="#pengembalian"><span class="dot"></span>Pengembalian</a>
+      <a href="#denda"><span class="dot"></span>Denda &amp; Pembayaran</a>
+    </div>
+
+    <div class="nav-group">
+      <span class="nav-group-label">Lainnya</span>
+      <a href="#status-http"><span class="dot"></span>Kode Status HTTP</a>
+      <a href="#keamanan"><span class="dot"></span>Keamanan &amp; Role</a>
+    </div>
+  </nav>
+
+  <main class="content">
+
+    <section id="ringkasan" class="hero">
+      <span class="eyebrow">Dokumentasi API · v1.0</span>
+      <h1>Sistem Informasi Perpustakaan</h1>
+      <p class="lead">Referensi lengkap REST API untuk sistem manajemen perpustakaan modern, mencakup sirkulasi (reservasi/peminjaman/pengembalian), pengelolaan master data, sinkronisasi stok otomatis, dan perhitungan denda terintegrasi dengan penguncian pesimis (pessimistic locking) agar bebas dari <i>race condition</i>.</p>
+
+      <div class="chip-row">
+        <span class="chip"><span class="k">Base URL</span><span class="v">http://localhost:8000/api</span></span>
+        <span class="chip"><span class="k">Auth</span><span class="v">Laravel Sanctum · Bearer Token</span></span>
+        <span class="chip"><span class="k">Format</span><span class="v">application/json</span></span>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><div class="num">61</div><div class="label">Total Endpoint RESTful</div></div>
+        <div class="stat"><div class="num">11</div><div class="label">Modul / Resource</div></div>
+        <div class="stat"><div class="num">3</div><div class="label">Role Berbeda (Middleware)</div></div>
+        <div class="stat"><div class="num">100%</div><div class="label">Pessimistic Locking Ready</div></div>
+      </div>
+    </section>
+
+    <!-- ================= AUTH ================= -->
+    <section id="auth" class="mod">
+      <div class="mod-head"><h2>Autentikasi (Auth)</h2><span class="mod-count">4 endpoint</span></div>
+      <table class="ep">
+        <tr><th>Method</th><th>Endpoint</th><th>Keterangan</th></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/login</td><td class="desc">Login menggunakan email dan password untuk mendapatkan token Sanctum.</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/logout</td><td class="desc">Logout pengguna dan hapus token dari database. (Memerlukan Token)</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/me</td><td class="desc">Dapatkan profil detail dari pengguna yang sedang login.</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/user</td><td class="desc">Endpoint bawaan Laravel Sanctum untuk informasi auth instan.</td></tr>
+      </table>
+
+      <div class="detail">
+        <div class="detail-head">
+          <span class="badge post">POST</span>
+          <span class="path">/api/login</span>
+          <span class="title">Login &amp; ambil token akses</span>
+        </div>
+        <div class="detail-body">
+          <div class="grid-2">
+            <div class="code-block">
+              <div class="code-head"><span class="code-label">Request Body</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre class="code-json">{
+  "email": "admin@perpustakaan.com",
+  "password": "password"
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-head"><span class="code-label">Response · 200</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre class="code-json">{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "user": {
+      "id": 1,
+      "name": "Admin",
+      "email": "admin@perpustakaan.com",
+      "role": "admin"
+    },
+    "token": "1|eyJ0eXAiOiJKV1Q..."
+  }
+}</pre>
+            </div>
+          </div>
+          <div class="note"><b>Catatan:</b> Seluruh endpoint kecuali login mewajibkan header <span class="code">Authorization: Bearer {token}</span>. Role diatur via middleware <span class="code">CheckRole</span> (Admin/Petugas).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= KATEGORI ================= -->
+    <section id="kategori" class="mod">
+      <div class="mod-head"><h2>Kategori Buku</h2><span class="mod-count">5 endpoint</span></div>
+      <p style="font-size: 14px; color: var(--ink-soft); margin-top: -10px; margin-bottom: 20px;">Role Akses: <b>Admin, Petugas</b></p>
+      <table class="ep">
+        <tr><th>Method</th><th>Endpoint</th><th>Keterangan</th></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/kategori</td><td class="desc">Daftar seluruh kategori buku</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/kategori</td><td class="desc">Tambah kategori baru</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/kategori/{id}</td><td class="desc">Detail kategori (berdasarkan id_kategori)</td></tr>
+        <tr><td><span class="badge put">PUT</span></td><td class="path">/kategori/{id}</td><td class="desc">Update kategori yang sudah ada</td></tr>
+        <tr><td><span class="badge delete">DELETE</span></td><td class="path">/kategori/{id}</td><td class="desc">Hapus kategori</td></tr>
+      </table>
+    </section>
+
+    <!-- ================= PENERBIT ================= -->
+    <section id="penerbit" class="mod">
+      <div class="mod-head"><h2>Penerbit</h2><span class="mod-count">5 endpoint</span></div>
+      <p style="font-size: 14px; color: var(--ink-soft); margin-top: -10px; margin-bottom: 20px;">Role Akses: <b>Admin, Petugas</b></p>
+      <table class="ep">
+        <tr><th>Method</th><th>Endpoint</th><th>Keterangan</th></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/penerbit</td><td class="desc">Daftar seluruh penerbit buku</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/penerbit</td><td class="desc">Tambah penerbit baru</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/penerbit/{id}</td><td class="desc">Detail penerbit (berdasarkan id_penerbit)</td></tr>
+        <tr><td><span class="badge put">PUT</span></td><td class="path">/penerbit/{id}</td><td class="desc">Update data penerbit</td></tr>
+        <tr><td><span class="badge delete">DELETE</span></td><td class="path">/penerbit/{id}</td><td class="desc">Hapus data penerbit</td></tr>
+      </table>
+    </section>
+
+    <!-- ================= RAK ================= -->
+    <section id="rak" class="mod">
+      <div class="mod-head"><h2>Rak Buku</h2><span class="mod-count">5 endpoint</span></div>
+      <p style="font-size: 14px; color: var(--ink-soft); margin-top: -10px; margin-bottom: 20px;">Role Akses: <b>Admin, Petugas</b></p>
+      <table class="ep">
+        <tr><th>Method</th><th>Endpoint</th><th>Keterangan</th></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/rak</td><td class="desc">Daftar seluruh rak buku beserta kapasitasnya</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/rak</td><td class="desc">Tambah rak buku baru</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/rak/{id}</td><td class="desc">Detail rak (berdasarkan id_rak)</td></tr>
+        <tr><td><span class="badge put">PUT</span></td><td class="path">/rak/{id}</td><td class="desc">Update informasi rak buku</td></tr>
+        <tr><td><span class="badge delete">DELETE</span></td><td class="path">/rak/{id}</td><td class="desc">Hapus rak buku</td></tr>
+      </table>
+    </section>
+
+    <!-- ================= ANGGOTA ================= -->
+    <section id="anggota" class="mod">
+      <div class="mod-head"><h2>Anggota</h2><span class="mod-count">6 endpoint</span></div>
+      <p style="font-size: 14px; color: var(--ink-soft); margin-top: -10px; margin-bottom: 20px;">Role Akses: <b>Admin, Petugas</b></p>
+      <table class="ep">
+        <tr><th>Method</th><th>Endpoint</th><th>Keterangan</th></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/anggota</td><td class="desc">Daftar anggota perpustakaan terdaftar</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/anggota</td><td class="desc">Daftarkan anggota baru</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/anggota/{id}</td><td class="desc">Lihat detail anggota</td></tr>
+        <tr><td><span class="badge put">PUT</span></td><td class="path">/anggota/{id}</td><td class="desc">Ubah profil anggota</td></tr>
+        <tr><td><span class="badge delete">DELETE</span></td><td class="path">/anggota/{id}</td><td class="desc">Hapus keanggotaan (Soft-delete direkomendasikan)</td></tr>
+        <tr><td><span class="badge patch">PATCH</span></td><td class="path">/anggota/{id}/status</td><td class="desc">Toggle status keanggotaan (aktif/blokir)</td></tr>
+      </table>
+    </section>
+    
+    <!-- ================= PETUGAS ================= -->
+    <section id="petugas" class="mod">
+      <div class="mod-head"><h2>Petugas</h2><span class="mod-count">5 endpoint</span></div>
+      <p style="font-size: 14px; color: var(--ink-soft); margin-top: -10px; margin-bottom: 20px;">Role Akses: <b>Admin, Petugas</b></p>
+      <table class="ep">
+        <tr><th>Method</th><th>Endpoint</th><th>Keterangan</th></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/petugas</td><td class="desc">Daftar staf/petugas perpustakaan</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/petugas</td><td class="desc">Tambah petugas baru</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/petugas/{id}</td><td class="desc">Lihat detail petugas</td></tr>
+        <tr><td><span class="badge put">PUT</span></td><td class="path">/petugas/{id}</td><td class="desc">Ubah data petugas</td></tr>
+        <tr><td><span class="badge delete">DELETE</span></td><td class="path">/petugas/{id}</td><td class="desc">Hapus data petugas</td></tr>
+      </table>
+    </section>
+
+    <!-- ================= BUKU ================= -->
+    <section id="buku" class="mod">
+      <div class="mod-head"><h2>Buku</h2><span class="mod-count">6 endpoint</span></div>
+      <p style="font-size: 14px; color: var(--ink-soft); margin-top: -10px; margin-bottom: 20px;">Role Akses: <b>Semua User (Lihat), Admin/Petugas (Kelola)</b></p>
+      <table class="ep">
+        <tr><th>Method</th><th>Endpoint</th><th>Keterangan</th></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/buku</td><td class="desc">Katalog buku (lengkap dengan jumlah stok tersedia)</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/buku</td><td class="desc">Tambah buku baru ke katalog</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/buku/{id}</td><td class="desc">Detail buku, termasuk relasi kategori, rak, dan penerbit</td></tr>
+        <tr><td><span class="badge put">PUT</span></td><td class="path">/buku/{id}</td><td class="desc">Update informasi katalog buku</td></tr>
+        <tr><td><span class="badge patch">PATCH</span></td><td class="path">/buku/{id}/stok</td><td class="desc">Sinkronisasi/Update instan khusus stok tersedia</td></tr>
+        <tr><td><span class="badge delete">DELETE</span></td><td class="path">/buku/{id}</td><td class="desc">Hapus buku dari sistem</td></tr>
+      </table>
+    </section>
+
+    <!-- ================= RESERVASI ================= -->
+    <section id="reservasi" class="mod">
+      <div class="mod-head"><h2>Sirkulasi · Reservasi</h2><span class="mod-count">7 endpoint</span></div>
+      <p style="font-size: 14px; color: var(--ink-soft); margin-top: -10px; margin-bottom: 20px;">Role Akses: <b>Admin, Petugas</b></p>
+      <table class="ep">
+        <tr><th>Method</th><th>Endpoint</th><th>Keterangan</th></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/reservasi</td><td class="desc">Daftar reservasi/booking buku oleh anggota</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/reservasi</td><td class="desc">Buat reservasi buku (mengurangi stok tersedia secara hold)</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/reservasi/{id}</td><td class="desc">Detail reservasi</td></tr>
+        <tr><td><span class="badge put">PUT</span></td><td class="path">/reservasi/{id}</td><td class="desc">Update detail data reservasi manual</td></tr>
+        <tr><td><span class="badge delete">DELETE</span></td><td class="path">/reservasi/{id}</td><td class="desc">Hapus / Batalkan reservasi secara manual</td></tr>
+        <tr><td><span class="badge patch">PATCH</span></td><td class="path">/reservasi/{id}/klaim</td><td class="desc">Ubah reservasi menjadi peminjaman fisik</td></tr>
+        <tr><td><span class="badge patch">PATCH</span></td><td class="path">/reservasi/{id}/batal</td><td class="desc">Batalkan reservasi (mengembalikan stok)</td></tr>
+      </table>
+    </section>
+
+    <!-- ================= PEMINJAMAN ================= -->
+    <section id="peminjaman" class="mod">
+      <div class="mod-head"><h2>Sirkulasi · Peminjaman</h2><span class="mod-count">5 endpoint</span></div>
+      <p style="font-size: 14px; color: var(--ink-soft); margin-top: -10px; margin-bottom: 20px;">Role Akses: <b>Admin, Petugas</b></p>
+      <table class="ep">
+        <tr><th>Method</th><th>Endpoint</th><th>Keterangan</th></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/peminjaman</td><td class="desc">Daftar transaksi peminjaman</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/peminjaman</td><td class="desc">Buat transaksi peminjaman (mengurangi stok buku)</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/peminjaman/{id}</td><td class="desc">Detail peminjaman beserta detail bukunya</td></tr>
+        <tr><td><span class="badge put">PUT</span></td><td class="path">/peminjaman/{id}</td><td class="desc">Update data administrasi peminjaman</td></tr>
+        <tr><td><span class="badge delete">DELETE</span></td><td class="path">/peminjaman/{id}</td><td class="desc">Hapus transaksi peminjaman (jarang digunakan)</td></tr>
+      </table>
+
+      <div class="detail">
+        <div class="detail-head">
+          <span class="badge post">POST</span>
+          <span class="path">/api/peminjaman</span>
+          <span class="title">Buat Transaksi Peminjaman</span>
+        </div>
+        <div class="detail-body">
+          <div class="grid-2">
+            <div class="code-block">
+              <div class="code-head"><span class="code-label">Request Body</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre class="code-json">{
+  "kode_peminjaman": "PMJ2025070701",
+  "id_anggota": 3,
+  "id_petugas": 2,
+  "tanggal_pinjam": "2025-07-07",
+  "tanggal_batas_kembali": "2025-07-14",
+  "buku_ids": [1, 5, 12]
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-head"><span class="code-label">Response · 201</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre class="code-json">{
+  "success": true,
+  "message": "Peminjaman berhasil",
+  "data": {
+    "kode_peminjaman": "PMJ2025070701",
+    "total_buku": 3,
+    "status_peminjaman": "aktif",
+    "detail_peminjamans": [
+      {
+        "id_buku": 1,
+        "status_buku": "dipinjam"
+      },
+      ...
+    ]
+  }
+}</pre>
+            </div>
+          </div>
+
+          <ol class="flow">
+            <li>Memulai <b>Database Transaction</b></li>
+            <li>Melakukan validasi input <b>buku_ids</b> yang wajib berupa array ID buku valid.</li>
+            <li>Sistem memanggil <span class="code">Buku::whereIn('id_buku', ...)->lockForUpdate()</span> untuk menahan/mengunci row data buku (menghindari <i>race condition</i> jika ada transaksi berbarengan).</li>
+            <li>Sistem memvalidasi ulang: apakah <span class="code">stok_tersedia &gt; 0</span>? Jika tidak, <i>Rollback</i> dikirim dan pesan <b>"stok habis"</b> di-return.</li>
+            <li>Jika stok aman, memotong <span class="code">stok_tersedia</span> sejumlah -1 untuk masing-masing buku.</li>
+            <li>Record <b>Peminjaman</b> dan <b>Detail Peminjaman</b> disisipkan ke tabel lalu <i>Commit</i> database dilakukan.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PENGEMBALIAN ================= -->
+    <section id="pengembalian" class="mod">
+      <div class="mod-head"><h2>Sirkulasi · Pengembalian</h2><span class="mod-count">3 endpoint</span></div>
+      <p style="font-size: 14px; color: var(--ink-soft); margin-top: -10px; margin-bottom: 20px;">Role Akses: <b>Admin, Petugas</b></p>
+      <table class="ep">
+        <tr><th>Method</th><th>Endpoint</th><th>Keterangan</th></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/pengembalian</td><td class="desc">Daftar buku yang telah dikembalikan</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/pengembalian</td><td class="desc">Proses pengembalian 1 item buku (mengembalikan stok)</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/pengembalian/{id}</td><td class="desc">Detail transaksi pengembalian tunggal</td></tr>
+      </table>
+
+      <div class="detail">
+        <div class="detail-head">
+          <span class="badge post">POST</span>
+          <span class="path">/api/pengembalian</span>
+          <span class="title">Submit Transaksi Pengembalian</span>
+        </div>
+        <div class="detail-body">
+          <div class="grid-2">
+            <div class="code-block">
+              <div class="code-head"><span class="code-label">Request Body</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre class="code-json">{
+  "id_detail": 45,
+  "id_petugas": 2,
+  "tanggal_kembali": "2025-07-16",
+  "kondisi_buku": "baik",
+  "keterangan": null
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-head"><span class="code-label">Response · 201</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre class="code-json">{
+  "success": true,
+  "message": "Pengembalian berhasil dicatat",
+  "data": {
+    "id_pengembalian": 88,
+    "terlambat_hari": 2,
+    "denda": 2000,
+    "kondisi_buku": "baik"
+  }
+}</pre>
+            </div>
+          </div>
+          <div class="note"><b>Perhatian Concurrency:</b> Sistem menerapkan <span class="code">lockForUpdate()</span> pada relasi <span class="code">DetailPeminjaman</span> untuk mencegah 1 buku dikembalikan 2x secara bersamaan (<i>Double-click Issue</i>). Setelah sukses, sistem mengembalikan status peminjaman induk menjadi "selesai" (jika semua bukunya telah kembali) dan menambahkan <span class="code">stok_tersedia</span> buku sejumlah +1.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DENDA & PEMBAYARAN ================= -->
+    <section id="denda" class="mod">
+      <div class="mod-head"><h2>Denda &amp; Pembayaran</h2><span class="mod-count">10 endpoint</span></div>
+      <p style="font-size: 14px; color: var(--ink-soft); margin-top: -10px; margin-bottom: 20px;">Role Akses: <b>Admin, Petugas</b></p>
+      <table class="ep">
+        <tr><th>Method</th><th>Endpoint</th><th>Keterangan</th></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/denda</td><td class="desc">Melihat seluruh data denda mahasiswa</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/denda</td><td class="desc">Menginput denda secara manual</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/denda/{id}</td><td class="desc">Detail data tagihan denda</td></tr>
+        <tr><td><span class="badge put">PUT</span></td><td class="path">/denda/{id}</td><td class="desc">Update detail administrasi tagihan denda</td></tr>
+        <tr><td><span class="badge delete">DELETE</span></td><td class="path">/denda/{id}</td><td class="desc">Hapus tagihan denda dari tabel</td></tr>
+        <tr><td><span class="badge patch">PATCH</span></td><td class="path">/denda/{id}/status</td><td class="desc">Ubah status tagihan (tanpa cicilan pembayaran)</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/denda/{id}/pembayaran</td><td class="desc">Riwayat cicilan atau pembayaran khusus denda ini</td></tr>
+        <tr><td><span class="badge post">POST</span></td><td class="path">/denda/{id}/pembayaran</td><td class="desc">Membayar / Mencicil denda untuk id_denda tertentu</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/pembayaran-denda/{id}</td><td class="desc">Detail transaksi pembayaran spesifik</td></tr>
+        <tr><td><span class="badge get">GET</span></td><td class="path">/denda/{id}/riwayat-status</td><td class="desc">Melihat log history pergantian status tagihan denda ini</td></tr>
+      </table>
+
+      <div class="detail">
+        <div class="detail-head">
+          <span class="badge post">POST</span>
+          <span class="path">/api/denda/{id}/pembayaran</span>
+          <span class="title">Transaksi Bayar / Cicil Denda</span>
+        </div>
+        <div class="detail-body">
+          <div class="grid-2">
+            <div class="code-block">
+              <div class="code-head"><span class="code-label">Request Body</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre class="code-json">{
+  "id_petugas": 2,
+  "jumlah_bayar": 5000,
+  "tanggal_bayar": "2025-07-20",
+  "metode_bayar": "cash"
+}</pre>
+            </div>
+            <div class="code-block">
+              <div class="code-head"><span class="code-label">Response · 201</span><button class="copy-btn" data-copy>Copy</button></div>
+              <pre class="code-json">{
+  "success": true,
+  "message": "Pembayaran berhasil disimpan",
+  "data": {
+    "sisa_denda": 0,
+    "status_denda_baru": "lunas",
+    "pembayaran_dicatat": true
+  }
+}</pre>
+            </div>
+          </div>
+          <div class="note"><b>Audit Trail Terintegrasi:</b> Setiap kali pembayaran dilakukan (meskipun <i>partial/cicilan</i>), sistem memotong <span class="code">sisa_denda</span>. Jika sisa denda 0, status berubah jadi <span class="code">lunas</span>. Semua perubahan status otomatis di-record di tabel <span class="code">riwayat_status_dendas</span>. Semua dibungkus di dalam <b>DB Transaction + Pessimistic Lock</b> untuk mencegah mahasiswa terhitung bayar ganda.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STATUS HTTP ================= -->
+    <section id="status-http" class="mod">
+      <div class="mod-head"><h2>Kode Status HTTP</h2></div>
+      <table class="status">
+        <tr class="ok"><td>200</td><td>OK — permintaan berhasil dijalankan (GET, PUT, PATCH)</td></tr>
+        <tr class="ok"><td>201</td><td>Created — data berhasil dibuat atau disisipkan (POST)</td></tr>
+        <tr class="err"><td>401</td><td>Unauthorized — tidak ada token yang dikirim atau token invalid</td></tr>
+        <tr class="err"><td>403</td><td>Forbidden — role user tidak diizinkan mengakses modul ini</td></tr>
+        <tr class="warn"><td>404</td><td>Not Found — data yang direquest (ID) tidak ada di tabel</td></tr>
+        <tr class="warn"><td>422</td><td>Unprocessable — input form gagal divalidasi</td></tr>
+        <tr class="err"><td>500</td><td>Server Error — kesalahan internal database / sintaks backend</td></tr>
+      </table>
+    </section>
+
+    <!-- ================= KEAMANAN ================= -->
+    <section id="keamanan" class="mod">
+      <div class="mod-head"><h2>Keamanan &amp; Role</h2></div>
+      <div class="sec-grid">
+        <div class="sec-card"><span class="sec-label">Bearer Token</span><p>Autentikasi menggunakan Laravel Sanctum. Tiap API call mewajibkan Header <span class="code">Authorization: Bearer &lt;token&gt;</span>.</p></div>
+        <div class="sec-card"><span class="sec-label">CheckRole Middleware</span><p>Terdapat Middleware kustom yang menyaring akses. <b>Admin</b> memiliki kontrol master data penuh, sedangkan <b>Petugas</b> terbatas pada fungsi operasional (Sirkulasi, Katalog, Member).</p></div>
+        <div class="sec-card"><span class="sec-label">Pessimistic Locking</span><p>Transaksi sirkulasi dan denda diproteksi MySQL <i>lockForUpdate()</i>. Menghindari selisih stok (race condition) akibat request klik ganda yang bersamaan.</p></div>
+        <div class="sec-card"><span class="sec-label">Atomic Transactions</span><p>Relasi majemuk (Sirkulasi → Buku → Detail) dibungkus <span class="code">DB::transaction</span>; <i>ALL-OR-NOTHING</i>.</p></div>
+      </div>
+    </section>
+
+    <footer>
+      Dokumentasi API · Sistem Informasi Perpustakaan (Laravel 11) · v1.0
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // ---- syntax highlight JSON blocks ----
+  function highlightJSON(json){
+    var escaped = json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return escaped.replace(/("(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\btrue\b|\bfalse\b|\bnull\b|-?\d+\.?\d*(?:[eE][+-]?\d+)?)/g, function(match){
+      var cls = 'tok-num';
+      if(/^"/.test(match)){ cls = /:\s*$/.test(match) ? 'tok-key' : 'tok-str'; }
+      else if(/true|false/.test(match)){ cls = 'tok-bool'; }
+      else if(/null/.test(match)){ cls = 'tok-null'; }
+      return '<span class="'+cls+'">'+match+'</span>';
+    });
+  }
+  document.querySelectorAll('pre.code-json').forEach(function(el){
+    el.innerHTML = highlightJSON(el.textContent);
+  });
+
+  // ---- copy buttons ----
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var pre = btn.closest('.code-block').querySelector('pre');
+      var text = pre.textContent;
+      var done = function(){ var old = btn.textContent; btn.textContent='Disalin!'; setTimeout(function(){btn.textContent=old;},1200); };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done).catch(done);
+      } else { done(); }
+    });
+  });
+
+  // ---- mobile nav toggle ----
+  var menuBtn = document.getElementById('menuBtn');
+  var sidebar = document.getElementById('sidebar');
+  if(menuBtn){
+    menuBtn.addEventListener('click', function(){ sidebar.classList.toggle('open'); });
+  }
+  document.querySelectorAll('.sidebar a').forEach(function(a){
+    a.addEventListener('click', function(){ sidebar.classList.remove('open'); });
+  });
+
+  // ---- active link on scroll ----
+  var sections = document.querySelectorAll('section[id]');
+  var links = document.querySelectorAll('.sidebar a');
+  function onScroll(){
+    var pos = window.scrollY + 120;
+    var current = sections[0] && sections[0].id;
+    sections.forEach(function(s){ if(s.offsetTop <= pos) current = s.id; });
+    links.forEach(function(l){
+      l.classList.toggle('active', l.getAttribute('href') === '#'+current);
+    });
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+</script>
+
+</body>
+</html>
